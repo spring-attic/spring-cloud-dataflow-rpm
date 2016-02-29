@@ -1,0 +1,80 @@
+buildscript {
+	repositories {
+		jcenter()
+	}
+
+	dependencies {
+		classpath 'com.netflix.nebula:gradle-ospackage-plugin:3.4.0'
+	}
+}
+
+if (tasks.findByPath("artifactoryPublish")) {
+	artifactory {
+		publish {
+			repository {
+				ivy {
+					artifactLayout = '[organization]/[revision]/spring-cloud-dataflow-server-yarn-[revision]-[classifier].[ext]'
+				}
+			}
+		}
+	}
+}
+
+configure(allprojects) {
+	repositories {
+		maven { url "http://repo.springsource.org/libs-snapshot" }
+	}
+	group = 'scdf'
+}
+
+configure(subprojects) { subproject ->
+	apply plugin: 'nebula.ospackage'
+	buildDeb.enabled = false
+
+	configurations {
+		rpm
+	}
+
+	dependencies {
+		rpm "org.springframework.cloud.dist:spring-cloud-dataflow-server-yarn-dist:$springCloudDataflowYarnVersion@zip"
+	}
+
+	task explodeDist(type: Copy) {
+		from(zipTree(configurations.rpm.singleFile))
+		into file("${buildDir}/unpacked/dist")
+	}
+
+	ospackage {
+		release = "${rootProject.release}"
+		arch = NOARCH
+		os = LINUX
+		user 'dataflow'
+		permissionGroup = 'pivotal'
+		packageDescription = 'Spring Cloud Dataflow Service.'
+		packageGroup = 'Applications/Databases'
+		license = 'Apache License v2.0'
+		preInstall file("${rootProject.projectDir}/src/main/package/rpm/preinstall.sh")
+		postUninstall file("${rootProject.projectDir}/src/main/package/rpm/postuninstall.sh")
+
+
+		link('/opt/pivotal/dataflow', "/opt/pivotal/spring-cloud-dataflow-server-yarn-$springCloudDataflowYarnVersion")
+		link('/usr/bin/dataflow-shell', '/opt/pivotal/dataflow/bin/dataflow-shell')
+	}
+
+	artifacts {
+		archives buildRpm {
+			classifier "${rootProject.release}.noarch"
+		}
+	}
+}
+
+project('noarch') {
+	buildRpm.dependsOn explodeDist
+	buildRpm {
+		packageName = 'spring-cloud-dataflow-server-yarn'
+		from("${buildDir}/unpacked/dist") {
+			into '/opt/pivotal'
+		}
+	}
+}
+
