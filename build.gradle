@@ -23,6 +23,8 @@ if (tasks.findByPath("artifactoryPublish")) {
 configure(allprojects) {
 	repositories {
 		maven { url "http://repo.springsource.org/libs-snapshot" }
+		maven { url "http://repo.springsource.org/libs-milestone" }
+		maven { url "http://repo.springsource.org/libs-release" }
 	}
 	group = 'scdf'
 }
