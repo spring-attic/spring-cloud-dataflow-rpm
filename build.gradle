@@ -60,7 +60,7 @@ configure(subprojects) { subproject ->
 
 
 		link('/opt/pivotal/dataflow', "/opt/pivotal/spring-cloud-dataflow-server-yarn-$springCloudDataflowYarnVersion")
-		link('/usr/bin/dataflow-shell', '/opt/pivotal/dataflow/bin/dataflow-shell')
+		link('/usr/bin/dataflow-shell', '/opt/pivotal/dataflow-shell')
 	}
 
 	artifacts {
@@ -76,6 +76,10 @@ project('noarch') {
 		packageName = 'spring-cloud-dataflow-server-yarn'
 		from("${buildDir}/unpacked/dist") {
 			into '/opt/pivotal'
+		}
+		from("src/main/resources") {
+			into '/opt/pivotal'
+			fileMode 0755
 		}
 	}
 }

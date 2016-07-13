@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if [ -f "/etc/scdf/conf/scdf-shell-env.sh" ] ; then
+  source /etc/scdf/conf/scdf-shell-env.sh
+fi
+
+exec /opt/pivotal/dataflow/bin/dataflow-shell "$@"
+
