@@ -61,6 +61,7 @@ configure(subprojects) { subproject ->
 
 		link('/opt/pivotal/dataflow', "/opt/pivotal/spring-cloud-dataflow-server-yarn-$springCloudDataflowYarnVersion")
 		link('/usr/bin/dataflow-shell', '/opt/pivotal/dataflow-shell')
+		link('/usr/bin/dataflow-server-yarn-cli', '/opt/pivotal/dataflow-server-yarn-cli')
 	}
 
 	artifacts {
